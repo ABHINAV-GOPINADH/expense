@@ -11,15 +11,15 @@ export default function HomePage() {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        if (user.role === 'manager') {
-          router.push('/approvals');
-        } else if (user.role === 'employee') {
-          router.push('/expenses');
+        if (user.role === "manager") {
+          router.push("/approvals");
+        } else if (user.role === "employee") {
+          router.push("/expenses");
         } else {
-          router.push('/dashboard');
+          router.push("/dashboard");
         }
       } else {
-        router.push('/signup');
+        router.push("/welcome");
       }
     }
   }, [user, isLoading, router]);
