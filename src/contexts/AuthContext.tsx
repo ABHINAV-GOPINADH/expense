@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Company, AuthContextType } from '@/types';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { User, Company, AuthContextType } from "@/types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -10,98 +10,136 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [company, setCompany] = useState<Company | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load session from localStorage on mount
   useEffect(() => {
-    // Check for existing session on mount
-    const storedUser = localStorage.getItem('user');
-    const storedCompany = localStorage.getItem('company');
-    
+    const storedUser = localStorage.getItem("user");
+    const storedCompany = localStorage.getItem("company");
+
     if (storedUser && storedCompany) {
       setUser(JSON.parse(storedUser));
       setCompany(JSON.parse(storedCompany));
     }
+
     setIsLoading(false);
   }, []);
+
+  const loadStoredUsers = (): User[] => {
+    const users = localStorage.getItem("users");
+    return users ? JSON.parse(users) : [];
+  };
+
+  const loadStoredCompanies = (): Company[] => {
+    const companies = localStorage.getItem("companies");
+    return companies ? JSON.parse(companies) : [];
+  };
+
+  const saveStoredUsers = (users: User[]) => {
+    localStorage.setItem("users", JSON.stringify(users));
+  };
+
+  const saveStoredCompanies = (companies: Company[]) => {
+    localStorage.setItem("companies", JSON.stringify(companies));
+  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock users database - in real app, this would come from your backend
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          email: 'admin@company.com',
-          name: 'John Admin',
-          role: 'admin',
-          companyId: '1',
-          isManagerApprover: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '2',
-          email: 'jane@company.com',
-          name: 'Jane Manager',
-          role: 'manager',
-          companyId: '1',
-          managerId: '1',
-          isManagerApprover: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '3',
-          email: 'mike@company.com',
-          name: 'Mike Employee',
-          role: 'employee',
-          companyId: '1',
-          managerId: '2',
-          isManagerApprover: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '4',
-          email: 'sarah@company.com',
-          name: 'Sarah Employee',
-          role: 'employee',
-          companyId: '1',
-          managerId: '2',
-          isManagerApprover: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+      const users = loadStoredUsers();
+      const foundUser = users.find((u) => u.email === email);
 
       const mockPasswords: Record<string, string> = {
-        'admin@company.com': 'password',
-        'jane@company.com': 'password',
-        'mike@company.com': 'password',
-        'sarah@company.com': 'password',
+        "admin@company.com": "password",
+        "jane@company.com": "password",
+        "mike@company.com": "password",
+        "sarah@company.com": "password",
       };
 
-      const foundUser = mockUsers.find(u => u.email === email);
-      const correctPassword = mockPasswords[email];
+      const isMockUser = Object.keys(mockPasswords).includes(email);
+      const isPasswordValid = isMockUser ? password === mockPasswords[email] : password === "password"; // default password check for new users
 
-      if (!foundUser || correctPassword !== password) {
-        throw new Error('Invalid credentials');
+      if (!foundUser || !isPasswordValid) {
+        throw new Error("Invalid credentials");
       }
 
-      const mockCompany: Company = {
-        id: '1',
-        name: 'Demo Company',
-        country: 'United States',
-        currency: 'USD',
+      const companies = loadStoredCompanies();
+      const userCompany = companies.find((c) => c.id === foundUser.companyId);
+
+      if (!userCompany) {
+        throw new Error("Company not found");
+      }
+
+      setUser(foundUser);
+      setCompany(userCompany);
+
+      localStorage.setItem("user", JSON.stringify(foundUser));
+      localStorage.setItem("company", JSON.stringify(userCompany));
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signup = async ({
+    name,
+    email,
+    password,
+    country,
+    currency,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+    country: string;
+    currency: string;
+  }) => {
+    setIsLoading(true);
+    try {
+      const users = loadStoredUsers();
+      const companies = loadStoredCompanies();
+
+      const userExists = users.some((u) => u.email === email);
+      if (userExists) {
+        throw new Error("User already exists");
+      }
+
+      const newCompanyId = crypto.randomUUID();
+      const newUserId = crypto.randomUUID();
+
+      const newCompany: Company = {
+        id: newCompanyId,
+        name: `${name}'s Company`,
+        country,
+        currency,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      setUser(foundUser);
-      setCompany(mockCompany);
-      
-      localStorage.setItem('user', JSON.stringify(foundUser));
-      localStorage.setItem('company', JSON.stringify(mockCompany));
+      const newUser: User = {
+        id: newUserId,
+        email,
+        name,
+        role: "employee",
+        companyId: newCompanyId,
+        isManagerApprover: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Save to "database"
+      const updatedUsers = [...users, newUser];
+      const updatedCompanies = [...companies, newCompany];
+      saveStoredUsers(updatedUsers);
+      saveStoredCompanies(updatedCompanies);
+
+      // Set session
+      setUser(newUser);
+      setCompany(newCompany);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      localStorage.setItem("company", JSON.stringify(newCompany));
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Signup failed:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -111,21 +149,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     setCompany(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('company');
+    localStorage.removeItem("user");
+    localStorage.removeItem("company");
   };
 
   return (
-    <AuthContext.Provider value={{ user, company, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user, company, login, logout, signup, isLoading }}>{children}</AuthContext.Provider>
   );
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
