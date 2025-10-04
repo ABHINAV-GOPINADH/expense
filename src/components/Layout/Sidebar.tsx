@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -12,36 +12,44 @@ import {
   ChartBarIcon,
   ReceiptRefundIcon,
   CheckCircleIcon,
-  XCircleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Users', href: '/users', icon: UserGroupIcon },
-  { name: 'Override Approvals', href: '/approvals', icon: CheckCircleIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Expenses", href: "/expenses", icon: DocumentTextIcon },
+  { name: "Approvals", href: "/approvals", icon: CheckCircleIcon },
+  { name: "Users", href: "/users", icon: UserGroupIcon },
+  { name: "Settings", href: "/settings", icon: CogIcon },
+  { name: "Reports", href: "/reports", icon: ChartBarIcon },
 ];
 
 const employeeNavigation = [
-  { name: 'My Expenses', href: '/expenses', icon: DocumentTextIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "My Expenses", href: "/expenses", icon: DocumentTextIcon },
+  { name: "Submit Expense", href: "/expenses/new", icon: ReceiptRefundIcon },
 ];
 
 const managerNavigation = [
-  { name: 'Approvals to Review', href: '/approvals', icon: CheckCircleIcon },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "My Expenses", href: "/expenses", icon: DocumentTextIcon },
+  { name: "Submit Expense", href: "/expenses/new", icon: ReceiptRefundIcon },
+  { name: "Pending Approvals", href: "/approvals", icon: CheckCircleIcon },
+  { name: "Team Expenses", href: "/team-expenses", icon: UserGroupIcon },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { userProfile } = useAuth();
 
   const getNavigationItems = () => {
-    if (!user) return [];
-    
-    switch (user.role) {
-      case 'admin':
+    if (!userProfile) return [];
+
+    switch (userProfile.role) {
+      case "admin":
         return navigation;
-      case 'manager':
+      case "manager":
         return managerNavigation;
-      case 'employee':
+      case "employee":
         return employeeNavigation;
       default:
         return [];
@@ -55,7 +63,7 @@ export default function Sidebar() {
       <div className="flex items-center h-16 px-4 bg-gray-800">
         <h1 className="text-xl font-bold">Expense</h1>
       </div>
-      
+
       <nav className="flex-1 px-4 py-4 space-y-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -64,9 +72,7 @@ export default function Sidebar() {
               key={item.name}
               href={item.href}
               className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-gray-700 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                isActive ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
               }`}
             >
               <item.icon className="mr-3 h-5 w-5" />
@@ -75,19 +81,17 @@ export default function Sidebar() {
           );
         })}
       </nav>
-      
+
       <div className="p-4 border-t border-gray-700">
         <div className="flex items-center">
           <div className="flex-shrink-0">
             <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center">
-              <span className="text-sm font-medium">
-                {user?.name?.charAt(0).toUpperCase()}
-              </span>
+              <span className="text-sm font-medium">{userProfile?.name?.charAt(0).toUpperCase()}</span>
             </div>
           </div>
           <div className="ml-3">
-            <p className="text-sm font-medium text-white">{user?.name}</p>
-            <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+            <p className="text-sm font-medium text-white">{userProfile?.name}</p>
+            <p className="text-xs text-gray-400 capitalize">{userProfile?.role}</p>
           </div>
         </div>
       </div>

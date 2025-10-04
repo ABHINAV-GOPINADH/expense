@@ -10,8 +10,7 @@ import {
   updateProfile,
   User,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { sign } from "crypto";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 const db = getFirestore(auth.app);
 
@@ -24,33 +23,57 @@ interface SignupData {
   role?: string;
 }
 
+interface UserProfile {
+  name: string;
+  email: string;
+  country: string;
+  currency: string;
+  role: string;
+  createdAt: any;
+}
+
+interface AuthContextType {
+  user: User | null;
+  userProfile: UserProfile | null;
+  login: (email: string, password: string) => Promise<any>;
+  signup: (data: SignupData) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [company, setCompany] = useState<Company | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Monitor Firebase Auth state
   useEffect(() => {
-    // Check for existing session on mount
-    const storedUser = localStorage.getItem("user");
-    const storedCompany = localStorage.getItem("company");
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        // Fetch user profile from Firestore
+        const docRef = doc(db, "users", firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
 
-    if (storedUser && storedCompany) {
-      setUser(JSON.parse(storedUser));
-      setCompany(JSON.parse(storedCompany));
-    }
-    setIsLoading(false);
+        if (docSnap.exists()) {
+          setUserProfile(docSnap.data() as UserProfile);
+        } else {
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Login method
   const login = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Signup method
-  const signup = async ({ name, email, password, country, currency, role = "admin" }: SignupData) => {
+  const signup = async ({ name, email, password, country = "", currency = "", role = "admin" }: SignupData) => {
     // 1️⃣ Create user in Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -63,20 +86,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await setDoc(doc(db, "users", userCredential.user.uid), {
       name,
       email,
-      country: country || "",
-      currency: currency || "",
-      role, // 👈 store role
+      country,
+      currency,
+      role,
       createdAt: new Date(),
     });
   };
 
-  // Logout method
   const logout = async () => {
     await signOut(auth);
     window.location.href = "/login"; // Redirect to login page
   };
 
-  return <AuthContext.Provider value={{ user, login, logout, signup }}>{children}</AuthContext.Provider>;
+  // Optionally, don't render children until loading done
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return <AuthContext.Provider value={{ user, userProfile, login, signup, logout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
