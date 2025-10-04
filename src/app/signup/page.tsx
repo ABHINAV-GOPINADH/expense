@@ -96,6 +96,7 @@ export default function SignupPage() {
         password: formData.password,
         country: formData.country,
         currency: formData.currency,
+        role: "admin",
       });
       router.push("/dashboard");
     } catch (err: any) {
@@ -228,6 +229,20 @@ export default function SignupPage() {
             >
               {isLoading ? "Signing up..." : "Sign Up"}
             </button>
+          </div>
+          <div className="text-center space-y-4">
+            <div>
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.push("/login")}
+                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </div>
