@@ -1,80 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Layout from '@/components/Layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   PlusIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  EyeIcon,
-  PencilIcon,
 } from '@heroicons/react/24/outline';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 
-// Mock data - in real app, this would come from your backend
-const mockExpenses = [
-  {
-    id: '1',
-    description: 'Client Dinner',
-    amount: 125.50,
-    currency: 'USD',
-    category: 'Meals & Entertainment',
-    status: 'approved',
-    date: '2024-01-15',
-    approver: 'John Manager',
-    comment: 'Approved for client meeting',
-    employeeId: '1', // Assuming user 1 is the employee
-  },
-  {
-    id: '2',
-    description: 'Taxi to Airport',
-    amount: 45.00,
-    currency: 'USD',
-    category: 'Transportation',
-    status: 'pending',
-    date: '2024-01-14',
-    approver: 'Jane Manager',
-    comment: '',
-    employeeId: '2', // Assuming user 2 is the employee
-  },
-  {
-    id: '3',
-    description: 'Office Supplies',
-    amount: 89.99,
-    currency: 'USD',
-    category: 'Office Supplies',
-    status: 'rejected',
-    date: '2024-01-13',
-    approver: 'John Manager',
-    comment: 'Not within budget guidelines',
-    employeeId: '1', // Assuming user 1 is the employee
-  },
-  {
-    id: '4',
-    description: 'Hotel Stay',
-    amount: 250.00,
-    currency: 'USD',
-    category: 'Accommodation',
-    status: 'approved',
-    date: '2024-01-12',
-    approver: 'Jane Manager',
-    comment: 'Business trip approved',
-    employeeId: '2', // Assuming user 2 is the employee
-  },
-  {
-    id: '5',
-    description: 'Team Lunch',
-    amount: 75.30,
-    currency: 'USD',
-    category: 'Meals & Entertainment',
-    status: 'pending',
-    date: '2024-01-11',
-    approver: 'John Manager',
-    comment: '',
-    employeeId: '1', // Assuming user 1 is the employee
-  },
-];
+const db = getFirestore();
 
 const statusColors = {
   approved: 'bg-green-100 text-green-800',
@@ -84,21 +19,42 @@ const statusColors = {
 
 export default function ExpensesPage() {
   const { user } = useAuth();
-  const [expenses, setExpenses] = useState(mockExpenses.filter(e => e.employeeId === user?.id));
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchExpenses = async () => {
+      setLoading(true);
+      try {
+        const q = query(collection(db, 'expenses'), where('createdBy', '==', user.uid));
+        const snapshot = await getDocs(q);
+        const expensesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setExpenses(expensesData);
+      } catch (error) {
+        console.error('Error fetching expenses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExpenses();
+  }, [user]);
 
   // Analytics
   const totalSubmitted = expenses.length;
   const waitingApproval = expenses.filter(e => e.status === 'pending').length;
   const approved = expenses.filter(e => e.status === 'approved').length;
-  const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalAmount = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Expenses</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-black">My Expenses</h1>
+            <p className="mt-1 text-sm text-black">
               Track your submitted expenses and their status.
             </p>
           </div>
@@ -123,10 +79,10 @@ export default function ExpensesPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-sm font-medium text-black truncate">
                       Total Submitted
                     </dt>
-                    <dd className="text-lg font-medium text-gray-900">
+                    <dd className="text-lg font-medium text-black">
                       {totalAmount.toFixed(2)}
                     </dd>
                   </dl>
@@ -144,11 +100,11 @@ export default function ExpensesPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-sm font-medium text-black truncate">
                       Waiting Approval
                     </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {expenses.filter(e => e.status === 'pending').reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                    <dd className="text-lg font-medium text-black">
+                      {expenses.filter(e => e.status === 'pending').reduce((sum, e) => sum + (e.amount || 0), 0).toFixed(2)}
                     </dd>
                   </dl>
                 </div>
@@ -165,11 +121,11 @@ export default function ExpensesPage() {
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
+                    <dt className="text-sm font-medium text-black truncate">
                       Approved
                     </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {expenses.filter(e => e.status === 'approved').reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
+                    <dd className="text-lg font-medium text-black">
+                      {expenses.filter(e => e.status === 'approved').reduce((sum, e) => sum + (e.amount || 0), 0).toFixed(2)}
                     </dd>
                   </dl>
                 </div>
@@ -184,29 +140,43 @@ export default function ExpensesPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid By</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Employee Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Paid By</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Remarks</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {expenses.map((expense) => (
-                  <tr key={expense.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">{user?.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{new Date(expense.date).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.category}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.paidBy}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.remarks}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.amount} {expense.currency}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{expense.status}</td>
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-4 text-center text-black">Loading...</td>
                   </tr>
-                ))}
+                ) : expenses.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-4 text-center text-black">No expenses found.</td>
+                  </tr>
+                ) : (
+                  expenses.map((expense) => (
+                    <tr key={expense.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{user?.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{expense.description}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{new Date(expense.date).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{expense.category}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{expense.paidBy}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{expense.remarks}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-black">{expense.amount} {expense.currency}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`${statusColors[expense.status] || 'bg-gray-100 text-gray-800'} px-2 inline-flex text-xs leading-5 font-semibold rounded-full`}>
+                          {expense.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

@@ -6,8 +6,11 @@ import Layout from '@/components/Layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchCountries, fetchCurrencyRates, convertCurrency } from '@/utils/api';
 import { Country, CurrencyRate } from '@/types';
-import { CameraIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import { CameraIcon } from '@heroicons/react/24/outline';
 import ReceiptScanner from '@/components/OCR/ReceiptScanner';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
+const db = getFirestore();
 
 const expenseCategories = [
   'Meals & Entertainment',
@@ -107,20 +110,25 @@ export default function NewExpensePage() {
     setIsLoading(true);
 
     try {
-      // Mock API call - in real app, this would submit to your backend
-      console.log('Submitting expense:', {
+      if (!user) throw new Error('User not authenticated');
+
+      // Save expense to Firestore
+      await addDoc(collection(db, 'expenses'), {
         ...formData,
         amount: parseFloat(formData.amount),
         convertedAmount,
-        receipt: selectedFile,
+        currency: formData.currency,
+        companyCurrency: company?.currency || 'USD',
+        receiptName: selectedFile?.name || null,
+        createdBy: user.uid,                              // ✅ Store user ID
+        createdByName: user.displayName || user.email,    // ✅ Store username/email
+        createdAt: serverTimestamp(),
       });
-
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
       router.push('/expenses?success=true');
     } catch (error) {
       console.error('Error submitting expense:', error);
+      alert('Failed to submit expense. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -131,21 +139,21 @@ export default function NewExpensePage() {
 
   return (
     <Layout>
-        <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Submit New Expense</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-black">Submit New Expense</h1>
+          <p className="mt-1 text-sm text-black">
             Fill in the details below to submit your expense claim.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Expense Details</h3>
+            <h3 className="text-lg font-medium text-black mb-4">Expense Details</h3>
             
             <div className="space-y-6">
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="description" className="block text-sm font-medium text-black">
                   Description
                 </label>
                 <input
@@ -153,7 +161,7 @@ export default function NewExpensePage() {
                   name="description"
                   id="description"
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Enter expense description"
                   value={formData.description}
                   onChange={handleInputChange}
@@ -161,7 +169,7 @@ export default function NewExpensePage() {
               </div>
 
               <div>
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="date" className="block text-sm font-medium text-black">
                   Expense Date
                 </label>
                 <input
@@ -169,21 +177,21 @@ export default function NewExpensePage() {
                   name="date"
                   id="date"
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.date}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="category" className="block text-sm font-medium text-black">
                   Category
                 </label>
                 <select
                   name="category"
                   id="category"
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={formData.category}
                   onChange={handleInputChange}
                 >
@@ -197,32 +205,24 @@ export default function NewExpensePage() {
               </div>
 
               <div>
-                <label htmlFor="paidBy" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="paidBy" className="block text-sm font-medium text-black">
                   Paid By
                 </label>
-                <div className="mt-1 relative">
-                  <input
-                    type="text"
-                    name="paidBy"
-                    id="paidBy"
-                    required
-                    className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    placeholder="Search and select user"
-                    value={formData.paidBy}
-                    onChange={handleInputChange}
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">Search and select the user who paid for this expense</p>
+                <input
+                  type="text"
+                  name="paidBy"
+                  id="paidBy"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Enter payer"
+                  value={formData.paidBy}
+                  onChange={handleInputChange}
+                />
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="amount" className="block text-sm font-medium text-black">
                     Total Amount
                   </label>
                   <input
@@ -232,7 +232,7 @@ export default function NewExpensePage() {
                     step="0.01"
                     min="0"
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="0.00"
                     value={formData.amount}
                     onChange={handleInputChange}
@@ -240,48 +240,41 @@ export default function NewExpensePage() {
                 </div>
 
                 <div>
-                  <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="currency" className="block text-sm font-medium text-black">
                     Currency
                   </label>
                   <select
                     name="currency"
                     id="currency"
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     value={formData.currency}
                     onChange={handleInputChange}
                   >
-                    <option value="USD">USD - US Dollar</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="GBP">GBP - British Pound</option>
-                    <option value="JPY">JPY - Japanese Yen</option>
-                    <option value="CAD">CAD - Canadian Dollar</option>
-                    <option value="AUD">AUD - Australian Dollar</option>
-                    <option value="CHF">CHF - Swiss Franc</option>
-                    <option value="CNY">CNY - Chinese Yuan</option>
-                    <option value="INR">INR - Indian Rupee</option>
-                    <option value="BRL">BRL - Brazilian Real</option>
+                    {availableCurrencies.map(curr => (
+                      <option key={curr} value={curr}>{curr}</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               {convertedAmount > 0 && formData.currency !== company?.currency && (
                 <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-black">
                     <strong>Converted to company currency:</strong> {company?.currency} {convertedAmount.toFixed(2)}
                   </p>
                 </div>
               )}
 
               <div>
-                <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="remarks" className="block text-sm font-medium text-black">
                   Remarks
                 </label>
                 <textarea
                   name="remarks"
                   id="remarks"
                   rows={3}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-black focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Additional notes or remarks..."
                   value={formData.remarks}
                   onChange={handleInputChange}
@@ -290,9 +283,9 @@ export default function NewExpensePage() {
             </div>
           </div>
 
+          {/* Receipt Upload Section */}
           <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Receipt Upload (Optional)</h3>
-            
+            <h3 className="text-lg font-medium text-black mb-4">Receipt Upload (Optional)</h3>
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
               <div className="space-y-1 text-center">
                 {previewUrl ? (
@@ -302,7 +295,7 @@ export default function NewExpensePage() {
                       alt="Receipt preview"
                       className="mx-auto h-32 w-auto object-contain"
                     />
-                    <p className="text-sm text-gray-500">{selectedFile?.name}</p>
+                    <p className="text-sm text-black">{selectedFile?.name}</p>
                     <div className="flex justify-center space-x-2">
                       <button
                         type="button"
@@ -319,11 +312,11 @@ export default function NewExpensePage() {
                 ) : (
                   <div>
                     <CameraIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex flex-col space-y-2 text-sm text-gray-600">
+                    <div className="flex flex-col space-y-2 text-sm text-black">
                       <div className="flex justify-center">
                         <label
                           htmlFor="receipt"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                          className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500"
                         >
                           <span>Upload a file</span>
                           <input
@@ -335,7 +328,7 @@ export default function NewExpensePage() {
                             onChange={handleFileChange}
                           />
                         </label>
-                        <span className="mx-2">or</span>
+                        <span className="mx-2 text-black">or</span>
                         <button
                           type="button"
                           onClick={() => setIsScannerOpen(true)}
@@ -344,7 +337,7 @@ export default function NewExpensePage() {
                           Scan with OCR
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                      <p className="text-xs text-black">PNG, JPG, PDF up to 10MB</p>
                     </div>
                   </div>
                 )}
@@ -356,21 +349,20 @@ export default function NewExpensePage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-black bg-white hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Submitting...' : 'Submit Expense'}
             </button>
           </div>
         </form>
 
-        {/* OCR Scanner Modal */}
         {isScannerOpen && (
           <ReceiptScanner
             onScanComplete={handleScanComplete}
