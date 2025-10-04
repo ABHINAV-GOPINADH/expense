@@ -36,13 +36,17 @@ export default function SignupPage() {
   const { signup } = useAuth();
   const router = useRouter();
 
+  // Fetch countries
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,currencies");
+        const res = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name,cca2,currencies"
+        );
         const data: Country[] = await res.json();
         data.sort((a, b) => a.name.common.localeCompare(b.name.common));
         setCountries(data);
+
         if (data.length > 0) {
           const defaultC = data[0];
           setSelectedCountry(defaultC.cca2);
@@ -58,6 +62,7 @@ export default function SignupPage() {
     fetchCountries();
   }, []);
 
+  // Update currency when country changes
   useEffect(() => {
     const c = countries.find((c) => c.cca2 === selectedCountry);
     if (c?.currencies) {
@@ -68,6 +73,7 @@ export default function SignupPage() {
     }
   }, [selectedCountry, countries]);
 
+  // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -79,6 +85,7 @@ export default function SignupPage() {
 
     setIsLoading(true);
     try {
+      // Use Firebase signup
       await signup({
         name,
         email,
@@ -86,9 +93,11 @@ export default function SignupPage() {
         country: selectedCountry,
         currency,
       });
+
+      // Redirect to dashboard
       router.push("/dashboard");
-    } catch (err) {
-      setError("Failed to signup: " + (err as any).message);
+    } catch (err: any) {
+      setError(err.message || "Failed to signup");
     } finally {
       setIsLoading(false);
     }
@@ -103,18 +112,14 @@ export default function SignupPage() {
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-          {/* Full Name */}
+          {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
-              id="name"
-              name="name"
               type="text"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="John Doe"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -122,17 +127,12 @@ export default function SignupPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
-              id="email"
-              name="email"
               type="email"
-              autoComplete="email"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="you@example.com"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -140,23 +140,18 @@ export default function SignupPage() {
 
           {/* Password */}
           <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
-              id="password"
-              name="password"
               type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"
-              className="absolute inset-y-8 right-3 flex items-center text-gray-500"
+              className="absolute right-3 top-2 text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -165,23 +160,18 @@ export default function SignupPage() {
 
           {/* Confirm Password */}
           <div className="relative">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
             <input
-              id="confirmPassword"
-              name="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
-              autoComplete="new-password"
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Confirm Password"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <button
               type="button"
-              className="absolute inset-y-8 right-3 flex items-center text-gray-500"
+              className="absolute right-3 top-2 text-gray-500"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
@@ -190,13 +180,9 @@ export default function SignupPage() {
 
           {/* Country */}
           <div>
-            <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-              Country
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select
-              id="country"
-              name="country"
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
             >
@@ -210,44 +196,36 @@ export default function SignupPage() {
 
           {/* Currency */}
           <div>
-            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">
-              Currency
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
             <select
-              id="currency"
-              name="currency"
-              className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
             >
-              {selectedCountry &&
-                (() => {
-                  const c = countries.find((c) => c.cca2 === selectedCountry);
-                  if (c?.currencies) {
-                    return Object.keys(c.currencies).map((code) => (
-                      <option key={code} value={code}>
-                        {code} — {c.currencies![code].name}
-                      </option>
-                    ));
-                  }
-                  return null;
-                })()}
+              {countries
+                .find((c) => c.cca2 === selectedCountry)
+                ?.currencies &&
+                Object.keys(
+                  countries.find((c) => c.cca2 === selectedCountry)!.currencies!
+                ).map((code) => (
+                  <option key={code} value={code}>
+                    {code} — {countries.find((c) => c.cca2 === selectedCountry)!.currencies![code].name}
+                  </option>
+                ))}
             </select>
           </div>
 
-          {/* Error Message */}
-          {error && <div className="text-sm text-red-600 text-center">{error}</div>}
+          {/* Error */}
+          {error && <div className="text-red-600 text-center">{error}</div>}
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Signing up..." : "Sign Up"}
-            </button>
-          </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {isLoading ? "Signing up..." : "Sign Up"}
+          </button>
         </form>
       </div>
     </div>
