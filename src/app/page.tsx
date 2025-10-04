@@ -1,28 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (user) {
-        // Check if user has seen welcome page
-        const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-        if (!hasSeenWelcome) {
-          router.push('/welcome');
-        } else {
-          router.push('/dashboard');
-        }
-      } else {
-        router.push('/login');
-      }
-    }
-  }, [user, isLoading, router]);
+    router.replace("/welcome");
+  }, [router]);
 
   if (isLoading) {
     return (

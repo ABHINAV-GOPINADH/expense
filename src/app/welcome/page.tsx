@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   UserGroupIcon,
   DocumentTextIcon,
@@ -10,98 +10,147 @@ import {
   CogIcon,
   ChartBarIcon,
   ArrowRightIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 export default function WelcomePage() {
   const { user } = useAuth();
   const router = useRouter();
 
+  // If user is not logged in, show login/signup options
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+        <h1 className="text-4xl font-extrabold mb-6 text-gray-900">
+          Welcome to <span className="text-indigo-600">Expense</span>
+        </h1>
+        <p className="mb-10 text-lg text-gray-700 max-w-xl">
+          Effortlessly manage your expenses with intelligent workflows, OCR scanning, and real-time reports.
+        </p>
+        <div className="space-x-4">
+          <button
+            onClick={() => router.push("/login")}
+            className="px-6 py-3 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            Log In
+          </button>
+          <button
+            onClick={() => router.push("/signup")}
+            className="px-6 py-3 rounded-md border border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6 text-sm text-blue-800 max-w-md">
+          <h3 className="text-lg font-semibold mb-2 text-blue-900">Demo Users</h3>
+          <ul className="list-disc list-inside space-y-1 text-left">
+            <li>
+              👑 Admin: <code>admin@company.com</code>
+            </li>
+            <li>
+              👥 Manager: <code>jane@company.com</code>
+            </li>
+            <li>
+              👤 Employee: <code>mike@company.com</code>
+            </li>
+            <li>
+              👤 Employee: <code>sarah@company.com</code>
+            </li>
+          </ul>
+          <p className="mt-2">
+            Password for all demo users: <strong>password</strong>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const getRoleFeatures = (role: string) => {
     switch (role) {
-      case 'admin':
+      case "admin":
         return [
           {
             icon: UserGroupIcon,
-            title: 'User Management',
-            description: 'Create and manage employees, managers, and their roles',
-            action: 'Manage Users',
-            href: '/users',
+            title: "User Management",
+            description: "Create and manage employees, managers, and their roles",
+            action: "Manage Users",
+            href: "/users",
           },
           {
             icon: CogIcon,
-            title: 'System Settings',
-            description: 'Configure approval rules, flows, and company settings',
-            action: 'Configure Settings',
-            href: '/settings',
+            title: "System Settings",
+            description: "Configure approval rules, flows, and company settings",
+            action: "Configure Settings",
+            href: "/settings",
           },
           {
             icon: ChartBarIcon,
-            title: 'Analytics & Reports',
-            description: 'View comprehensive expense reports and analytics',
-            action: 'View Reports',
-            href: '/reports',
+            title: "Analytics & Reports",
+            description: "View comprehensive expense reports and analytics",
+            action: "View Reports",
+            href: "/reports",
           },
           {
             icon: CheckCircleIcon,
-            title: 'Override Approvals',
-            description: 'Approve or reject any expense in the system',
-            action: 'Review Approvals',
-            href: '/approvals',
+            title: "Override Approvals",
+            description: "Approve or reject any expense in the system",
+            action: "Review Approvals",
+            href: "/approvals",
           },
         ];
-      case 'manager':
+      case "manager":
         return [
           {
             icon: CheckCircleIcon,
-            title: 'Approve Expenses',
-            description: 'Review and approve expense claims from your team',
-            action: 'Review Pending',
-            href: '/approvals',
+            title: "Approve Expenses",
+            description: "Review and approve expense claims from your team",
+            action: "Review Pending",
+            href: "/approvals",
           },
           {
             icon: UserGroupIcon,
-            title: 'Team Management',
-            description: 'View and manage expenses from your team members',
-            action: 'View Team',
-            href: '/team-expenses',
+            title: "Team Management",
+            description: "View and manage expenses from your team members",
+            action: "View Team",
+            href: "/team-expenses",
           },
           {
             icon: DocumentTextIcon,
-            title: 'Submit Expenses',
-            description: 'Create and submit your own expense claims',
-            action: 'Submit Expense',
-            href: '/expenses/new',
+            title: "Submit Expenses",
+            description: "Create and submit your own expense claims",
+            action: "Submit Expense",
+            href: "/expenses/new",
           },
           {
             icon: ChartBarIcon,
-            title: 'Team Reports',
-            description: 'View reports and analytics for your team',
-            action: 'View Reports',
-            href: '/reports',
+            title: "Team Reports",
+            description: "View reports and analytics for your team",
+            action: "View Reports",
+            href: "/reports",
           },
         ];
-      case 'employee':
+      case "employee":
         return [
           {
             icon: DocumentTextIcon,
-            title: 'Submit Expenses',
-            description: 'Create and submit expense claims with receipt upload',
-            action: 'Submit Expense',
-            href: '/expenses/new',
+            title: "Submit Expenses",
+            description: "Create and submit expense claims with receipt upload",
+            action: "Submit Expense",
+            href: "/expenses/new",
           },
           {
             icon: CheckCircleIcon,
-            title: 'Track Status',
-            description: 'Monitor the approval status of your submitted expenses',
-            action: 'View My Expenses',
-            href: '/expenses',
+            title: "Track Status",
+            description: "Monitor the approval status of your submitted expenses",
+            action: "View My Expenses",
+            href: "/expenses",
           },
           {
             icon: ChartBarIcon,
-            title: 'View History',
-            description: 'Access your complete expense history and reports',
-            action: 'View History',
-            href: '/expenses',
+            title: "View History",
+            description: "Access your complete expense history and reports",
+            action: "View History",
+            href: "/expenses",
           },
         ];
       default:
@@ -109,21 +158,19 @@ export default function WelcomePage() {
     }
   };
 
-  const features = getRoleFeatures(user?.role || '');
+  const features = getRoleFeatures(user?.role || "");
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Expense, {user?.name}!
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Expense, {user?.name}!</h1>
           <p className="text-xl text-gray-600 mb-8">
             You're logged in as a <span className="font-semibold text-indigo-600 capitalize">{user?.role}</span>
           </p>
           <p className="text-lg text-gray-500 max-w-3xl mx-auto">
-            Expense streamlines your expense reimbursement process with intelligent approval workflows, 
-            OCR receipt scanning, and comprehensive reporting. Here's what you can do:
+            Expense streamlines your expense reimbursement process with intelligent approval workflows, OCR receipt
+            scanning, and comprehensive reporting. Here's what you can do:
           </p>
         </div>
 
@@ -136,12 +183,8 @@ export default function WelcomePage() {
               <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4">
                 <feature.icon className="h-6 w-6 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {feature.description}
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+              <p className="text-gray-600 mb-4">{feature.description}</p>
               <button
                 onClick={() => router.push(feature.href)}
                 className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium"
@@ -155,7 +198,7 @@ export default function WelcomePage() {
 
         <div className="bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Start Guide</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">For Employees</h3>
@@ -166,7 +209,7 @@ export default function WelcomePage() {
                 <li>Track your expense status in "My Expenses"</li>
               </ol>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">For Managers</h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-600">
@@ -178,7 +221,7 @@ export default function WelcomePage() {
             </div>
           </div>
 
-          {user?.role === 'admin' && (
+          {user?.role === "admin" && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">For Administrators</h3>
               <ol className="list-decimal list-inside space-y-2 text-gray-600">
@@ -194,8 +237,8 @@ export default function WelcomePage() {
         <div className="text-center mt-12">
           <button
             onClick={() => {
-              localStorage.setItem('hasSeenWelcome', 'true');
-              router.push('/dashboard');
+              localStorage.setItem("hasSeenWelcome", "true");
+              router.push("/dashboard");
             }}
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
@@ -207,18 +250,30 @@ export default function WelcomePage() {
         <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-2">Demo Features</h3>
           <p className="text-blue-800 mb-4">
-            This is a demo application. You can switch between different user roles using the role switcher 
-            in the top-right corner to experience different user perspectives.
+            This is a demo application. You can switch between different user roles using the role switcher in the
+            top-right corner to experience different user perspectives.
           </p>
           <div className="text-sm text-blue-700">
-            <p><strong>Available Demo Users:</strong></p>
+            <p>
+              <strong>Available Demo Users:</strong>
+            </p>
             <ul className="list-disc list-inside mt-2 space-y-1">
-              <li>👑 Admin: admin@company.com</li>
-              <li>👥 Manager: jane@company.com</li>
-              <li>👤 Employee: mike@company.com</li>
-              <li>👤 Employee: sarah@company.com</li>
+              <li>
+                👑 Admin: <code>admin@company.com</code>
+              </li>
+              <li>
+                👥 Manager: <code>jane@company.com</code>
+              </li>
+              <li>
+                👤 Employee: <code>mike@company.com</code>
+              </li>
+              <li>
+                👤 Employee: <code>sarah@company.com</code>
+              </li>
             </ul>
-            <p className="mt-2">All demo users use the password: <strong>password</strong></p>
+            <p className="mt-2">
+              All demo users use the password: <strong>password</strong>
+            </p>
           </div>
         </div>
       </div>
