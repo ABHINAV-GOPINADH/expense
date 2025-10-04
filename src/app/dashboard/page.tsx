@@ -1,71 +1,72 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Layout from '@/components/Layout/Layout';
-import { useAuth } from '@/contexts/AuthContext';
+import React from "react";
+import { format } from "date-fns";
+import Layout from "@/components/Layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DocumentTextIcon,
   CheckCircleIcon,
   XCircleIcon,
   CurrencyDollarIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 const stats = [
   {
-    name: 'Total Expenses',
-    value: '$12,345',
-    change: '+12%',
-    changeType: 'positive',
+    name: "Total Expenses",
+    value: "$12,345",
+    change: "+12%",
+    changeType: "positive",
     icon: DocumentTextIcon,
   },
   {
-    name: 'Pending Approvals',
-    value: '8',
-    change: '+2',
-    changeType: 'neutral',
+    name: "Pending Approvals",
+    value: "8",
+    change: "+2",
+    changeType: "neutral",
     icon: ClockIcon,
   },
   {
-    name: 'Approved This Month',
-    value: '$8,234',
-    change: '+18%',
-    changeType: 'positive',
+    name: "Approved This Month",
+    value: "$8,234",
+    change: "+18%",
+    changeType: "positive",
     icon: CheckCircleIcon,
   },
   {
-    name: 'Rejected This Month',
-    value: '3',
-    change: '-1',
-    changeType: 'negative',
+    name: "Rejected This Month",
+    value: "3",
+    change: "-1",
+    changeType: "negative",
     icon: XCircleIcon,
   },
 ];
 
 const recentExpenses = [
   {
-    id: '1',
-    description: 'Client Dinner',
-    amount: 125.50,
-    currency: 'USD',
-    status: 'approved',
-    date: '2024-01-15',
+    id: "1",
+    description: "Client Dinner",
+    amount: 125.5,
+    currency: "USD",
+    status: "approved",
+    date: "2024-01-15",
   },
   {
-    id: '2',
-    description: 'Taxi to Airport',
-    amount: 45.00,
-    currency: 'USD',
-    status: 'pending',
-    date: '2024-01-14',
+    id: "2",
+    description: "Taxi to Airport",
+    amount: 45.0,
+    currency: "USD",
+    status: "pending",
+    date: "2024-01-14",
   },
   {
-    id: '3',
-    description: 'Office Supplies',
+    id: "3",
+    description: "Office Supplies",
     amount: 89.99,
-    currency: 'USD',
-    status: 'rejected',
-    date: '2024-01-13',
+    currency: "USD",
+    status: "rejected",
+    date: "2024-01-13",
   },
 ];
 
@@ -74,14 +75,14 @@ export default function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -90,9 +91,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Welcome back! Here's what's happening with your expenses.
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Welcome back! Here's what's happening with your expenses.</p>
         </div>
 
         {/* Stats Grid */}
@@ -106,21 +105,17 @@ export default function DashboardPage() {
                 <div className="absolute bg-indigo-500 rounded-md p-3">
                   <stat.icon className="h-6 w-6 text-white" />
                 </div>
-                <p className="ml-16 text-sm font-medium text-gray-500 truncate">
-                  {stat.name}
-                </p>
+                <p className="ml-16 text-sm font-medium text-gray-500 truncate">{stat.name}</p>
               </dt>
               <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
-                <p className="text-2xl font-semibold text-gray-900">
-                  {stat.value}
-                </p>
+                <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
                 <p
                   className={`ml-2 flex items-baseline text-sm font-semibold ${
-                    stat.changeType === 'positive'
-                      ? 'text-green-600'
-                      : stat.changeType === 'negative'
-                      ? 'text-red-600'
-                      : 'text-gray-500'
+                    stat.changeType === "positive"
+                      ? "text-green-600"
+                      : stat.changeType === "negative"
+                      ? "text-red-600"
+                      : "text-gray-500"
                   }`}
                 >
                   {stat.change}
@@ -133,9 +128,7 @@ export default function DashboardPage() {
         {/* Recent Expenses */}
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Recent Expenses
-            </h3>
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Expenses</h3>
             <div className="flow-root">
               <ul className="-my-5 divide-y divide-gray-200">
                 {recentExpenses.map((expense) => (
@@ -145,17 +138,11 @@ export default function DashboardPage() {
                         <CurrencyDollarIcon className="h-8 w-8 text-gray-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {expense.description}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(expense.date).toLocaleDateString()}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{expense.description}</p>
+                        <p className="text-sm text-gray-500">{format(new Date(expense.date), "dd/MM/yyyy")}</p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-gray-900">
-                          ${expense.amount}
-                        </span>
+                        <span className="text-sm font-medium text-gray-900">${expense.amount}</span>
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
                             expense.status
@@ -175,9 +162,7 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Quick Actions
-            </h3>
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <button className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-300 hover:border-gray-400">
                 <div>
@@ -190,9 +175,7 @@ export default function DashboardPage() {
                     <span className="absolute inset-0" />
                     Submit New Expense
                   </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Create a new expense claim with receipt upload
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500">Create a new expense claim with receipt upload</p>
                 </div>
               </button>
 
@@ -207,9 +190,7 @@ export default function DashboardPage() {
                     <span className="absolute inset-0" />
                     Review Approvals
                   </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Approve or reject pending expense claims
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500">Approve or reject pending expense claims</p>
                 </div>
               </button>
 
@@ -224,9 +205,7 @@ export default function DashboardPage() {
                     <span className="absolute inset-0" />
                     View Reports
                   </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Analyze expense trends and patterns
-                  </p>
+                  <p className="mt-2 text-sm text-gray-500">Analyze expense trends and patterns</p>
                 </div>
               </button>
             </div>
