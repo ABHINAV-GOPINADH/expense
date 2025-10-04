@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'manager' | 'employee';
+export type UserRole = "admin" | "manager" | "employee";
 
 export interface User {
   id: string;
@@ -29,7 +29,7 @@ export interface Expense {
   category: string;
   description: string;
   date: Date;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   receiptUrl?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -40,7 +40,7 @@ export interface ApprovalHistory {
   id: string;
   expenseId: string;
   approverId: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   comment?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -50,7 +50,7 @@ export interface ApprovalRule {
   id: string;
   companyId: string;
   name: string;
-  type: 'percentage' | 'specific' | 'hybrid';
+  type: "percentage" | "specific" | "hybrid";
   percentage?: number;
   specificApproverId?: string;
   hybridRules?: {
@@ -84,10 +84,13 @@ export interface Country {
     common: string;
     official: string;
   };
-  currencies: Record<string, {
-    name: string;
-    symbol: string;
-  }>;
+  currencies: Record<
+    string,
+    {
+      name: string;
+      symbol: string;
+    }
+  >;
 }
 
 export interface CurrencyRate {
@@ -99,6 +102,7 @@ export interface AuthContextType {
   company: Company | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  signup: (data: { name: string; email: string; password: string; country: string; currency: string }) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -112,6 +116,6 @@ export interface ExpenseFormData {
 }
 
 export interface ApprovalFormData {
-  status: 'approved' | 'rejected';
+  status: "approved" | "rejected";
   comment: string;
 }

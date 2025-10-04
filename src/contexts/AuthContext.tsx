@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
@@ -11,6 +11,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    console.log("✅ Firebase Auth instance:", auth);
   const [user, setUser] = useState<User | null>(null);
 
+  // Load session from localStorage on mount
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
