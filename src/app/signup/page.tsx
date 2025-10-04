@@ -239,7 +239,7 @@ export default function SignupPage() {
                   onClick={() => router.push("/login")}
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
-                  Sign up
+                  Login
                 </button>
               </p>
             </div>
