@@ -111,15 +111,39 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              Demo credentials (all use password: "password"):
-            </p>
-            <div className="text-xs text-gray-500 space-y-1">
-              <div>👑 Admin: admin@company.com</div>
-              <div>👥 Manager: jane@company.com</div>
-              <div>👤 Employee: mike@company.com</div>
-              <div>👤 Employee: sarah@company.com</div>
+          <div className="text-center space-y-4">
+            <div>
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => router.push('/signup')}
+                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
+            
+            <div>
+              <button
+                type="button"
+                className="text-sm text-indigo-600 hover:text-indigo-500"
+              >
+                Forgot your password?
+              </button>
+            </div>
+
+            <div className="border-t pt-4">
+              <p className="text-sm text-gray-600 mb-2">
+                Demo credentials (all use password: "password"):
+              </p>
+              <div className="text-xs text-gray-500 space-y-1">
+                <div>👑 Admin: admin@company.com</div>
+                <div>👥 Manager: jane@company.com</div>
+                <div>👤 Employee: mike@company.com</div>
+                <div>👤 Employee: sarah@company.com</div>
+              </div>
             </div>
           </div>
         </form>

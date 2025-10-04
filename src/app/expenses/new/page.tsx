@@ -31,12 +31,13 @@ export default function NewExpensePage() {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
-    amount: '',
-    currency: company?.currency || 'USD',
-    category: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
-    country: company?.country || 'United States',
+    category: '',
+    paidBy: '',
+    amount: '',
+    currency: 'USD',
+    remarks: '',
   });
 
   const [convertedAmount, setConvertedAmount] = useState<number>(0);
@@ -130,7 +131,7 @@ export default function NewExpensePage() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Submit New Expense</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -142,49 +143,26 @@ export default function NewExpensePage() {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Expense Details</h3>
             
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="space-y-6">
               <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                  Amount
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  Description
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <input
-                    type="number"
-                    name="amount"
-                    id="amount"
-                    step="0.01"
-                    min="0"
-                    required
-                    className="block w-full pr-12 pl-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    placeholder="0.00"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center">
-                    <select
-                      name="currency"
-                      className="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-r-md"
-                      value={formData.currency}
-                      onChange={handleInputChange}
-                    >
-                      {availableCurrencies.map(currency => (
-                        <option key={currency} value={currency}>
-                          {currency}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                {convertedAmount > 0 && formData.currency !== company?.currency && (
-                  <p className="mt-1 text-sm text-gray-500">
-                    ≈ {company?.currency} {convertedAmount.toFixed(2)}
-                  </p>
-                )}
+                <input
+                  type="text"
+                  name="description"
+                  id="description"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Enter expense description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                />
               </div>
 
               <div>
                 <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-                  Date
+                  Expense Date
                 </label>
                 <input
                   type="date"
@@ -196,68 +174,124 @@ export default function NewExpensePage() {
                   onChange={handleInputChange}
                 />
               </div>
-            </div>
 
-            <div className="mt-6">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Category
-              </label>
-              <select
-                name="category"
-                id="category"
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={formData.category}
-                onChange={handleInputChange}
-              >
-                <option value="">Select a category</option>
-                {expenseCategories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  id="category"
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select a category</option>
+                  {expenseCategories.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="mt-6">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                name="description"
-                id="description"
-                rows={3}
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Describe the expense..."
-                value={formData.description}
-                onChange={handleInputChange}
-              />
-            </div>
+              <div>
+                <label htmlFor="paidBy" className="block text-sm font-medium text-gray-700">
+                  Paid By
+                </label>
+                <div className="mt-1 relative">
+                  <input
+                    type="text"
+                    name="paidBy"
+                    id="paidBy"
+                    required
+                    className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Search and select user"
+                    value={formData.paidBy}
+                    onChange={handleInputChange}
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">Search and select the user who paid for this expense</p>
+              </div>
 
-            <div className="mt-6">
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                Country
-              </label>
-              <select
-                name="country"
-                id="country"
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={formData.country}
-                onChange={handleInputChange}
-              >
-                {countries.map(country => (
-                  <option key={country.name.common} value={country.name.common}>
-                    {country.name.common}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                    Total Amount
+                  </label>
+                  <input
+                    type="number"
+                    name="amount"
+                    id="amount"
+                    step="0.01"
+                    min="0"
+                    required
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="0.00"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
+                    Currency
+                  </label>
+                  <select
+                    name="currency"
+                    id="currency"
+                    required
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    value={formData.currency}
+                    onChange={handleInputChange}
+                  >
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                  </select>
+                </div>
+              </div>
+
+              {convertedAmount > 0 && formData.currency !== company?.currency && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <p className="text-sm text-blue-800">
+                    <strong>Converted to company currency:</strong> {company?.currency} {convertedAmount.toFixed(2)}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="remarks" className="block text-sm font-medium text-gray-700">
+                  Remarks
+                </label>
+                <textarea
+                  name="remarks"
+                  id="remarks"
+                  rows={3}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Additional notes or remarks..."
+                  value={formData.remarks}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
           </div>
 
           <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Receipt Upload</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Receipt Upload (Optional)</h3>
             
             <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
               <div className="space-y-1 text-center">

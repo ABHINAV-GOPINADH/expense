@@ -89,6 +89,11 @@ export default function UsersPage() {
     managerId: '',
     password: '',
     sendEmailInvitation: true,
+    // Approval rules
+    approvalType: 'manager', // 'manager', 'percentage', 'specific', 'hybrid'
+    approvalPercentage: 60,
+    specificApproverId: '',
+    minimumApprovalPercentage: 50,
   });
 
   const filteredUsers = mockUsers.filter(user => {
@@ -101,9 +106,14 @@ export default function UsersPage() {
 
   const managers = mockUsers.filter(u => u.role === 'manager' || u.role === 'admin');
 
+  const generateRandomPassword = () => Math.random().toString(36).slice(-8);
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const randomPassword = generateRandomPassword();
+      // Simulate sending password (show in alert or toast)
+      alert(`User created! Password sent: ${randomPassword}`);
+      
       // Mock API call - in real app, this would submit to your backend
       console.log('Creating user:', newUser);
       
@@ -119,6 +129,10 @@ export default function UsersPage() {
         managerId: '',
         password: '',
         sendEmailInvitation: true,
+        approvalType: 'manager',
+        approvalPercentage: 60,
+        specificApproverId: '',
+        minimumApprovalPercentage: 50,
       });
       setIsCreateModalOpen(false);
     } catch (error) {
@@ -452,30 +466,10 @@ export default function UsersPage() {
                     >
                       <option value="employee">Employee</option>
                       <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
                     </select>
                   </div>
 
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      id="password"
-                      required
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      placeholder="Set initial password"
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      User will be required to change this on first login
-                    </p>
-                  </div>
-
-                  {(newUser.role === 'manager' || newUser.role === 'admin') && (
+                  {newUser.role === 'employee' && (
                     <div>
                       <label htmlFor="managerId" className="block text-sm font-medium text-gray-700">
                         Manager
@@ -483,6 +477,7 @@ export default function UsersPage() {
                       <select
                         name="managerId"
                         id="managerId"
+                        required
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         value={newUser.managerId}
                         onChange={(e) => setNewUser({...newUser, managerId: e.target.value})}
@@ -497,19 +492,21 @@ export default function UsersPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="isManagerApprover"
-                      id="isManagerApprover"
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                      checked={newUser.isManagerApprover}
-                      onChange={(e) => setNewUser({...newUser, isManagerApprover: e.target.checked})}
-                    />
-                    <label htmlFor="isManagerApprover" className="ml-2 block text-sm text-gray-900">
-                      Can approve expenses
-                    </label>
-                  </div>
+                  {newUser.role === 'employee' && (
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="isManagerApprover"
+                        id="isManagerApprover"
+                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        checked={newUser.isManagerApprover}
+                        onChange={(e) => setNewUser({...newUser, isManagerApprover: e.target.checked})}
+                      />
+                      <label htmlFor="isManagerApprover" className="ml-2 block text-sm text-gray-900">
+                        Is manager an approver?
+                      </label>
+                    </div>
+                  )}
 
                   <div className="flex items-center">
                     <input
@@ -525,6 +522,165 @@ export default function UsersPage() {
                     </label>
                   </div>
 
+                  {/* Approval Rules Section */}
+                  {newUser.role === 'employee' && (
+                    <div className="border-t pt-6">
+                      <h4 className="text-lg font-medium text-gray-900 mb-4">Approval Rules</h4>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Approval Type
+                          </label>
+                          <div className="space-y-2">
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="approvalType"
+                                value="manager"
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                checked={newUser.approvalType === 'manager'}
+                                onChange={(e) => setNewUser({...newUser, approvalType: e.target.value})}
+                              />
+                              <span className="ml-2 text-sm text-gray-900">Manager Approval (Default)</span>
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="approvalType"
+                                value="percentage"
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                checked={newUser.approvalType === 'percentage'}
+                                onChange={(e) => setNewUser({...newUser, approvalType: e.target.value})}
+                              />
+                              <span className="ml-2 text-sm text-gray-900">Percentage Approval</span>
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="approvalType"
+                                value="specific"
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                checked={newUser.approvalType === 'specific'}
+                                onChange={(e) => setNewUser({...newUser, approvalType: e.target.value})}
+                              />
+                              <span className="ml-2 text-sm text-gray-900">Specific Approver</span>
+                            </label>
+                            <label className="flex items-center">
+                              <input
+                                type="radio"
+                                name="approvalType"
+                                value="hybrid"
+                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                                checked={newUser.approvalType === 'hybrid'}
+                                onChange={(e) => setNewUser({...newUser, approvalType: e.target.value})}
+                              />
+                              <span className="ml-2 text-sm text-gray-900">Hybrid (Percentage + Specific)</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {newUser.approvalType === 'percentage' && (
+                          <div>
+                            <label htmlFor="approvalPercentage" className="block text-sm font-medium text-gray-700">
+                              Approval Percentage Required
+                            </label>
+                            <input
+                              type="number"
+                              name="approvalPercentage"
+                              id="approvalPercentage"
+                              min="1"
+                              max="100"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              value={newUser.approvalPercentage}
+                              onChange={(e) => setNewUser({...newUser, approvalPercentage: parseInt(e.target.value)})}
+                            />
+                          </div>
+                        )}
+
+                        {newUser.approvalType === 'specific' && (
+                          <div>
+                            <label htmlFor="specificApproverId" className="block text-sm font-medium text-gray-700">
+                              Specific Approver
+                            </label>
+                            <select
+                              name="specificApproverId"
+                              id="specificApproverId"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              value={newUser.specificApproverId}
+                              onChange={(e) => setNewUser({...newUser, specificApproverId: e.target.value})}
+                            >
+                              <option value="">Select Approver</option>
+                              {managers.map(manager => (
+                                <option key={manager.id} value={manager.id}>
+                                  {manager.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {newUser.approvalType === 'hybrid' && (
+                          <div className="space-y-4">
+                            <div>
+                              <label htmlFor="approvalPercentage" className="block text-sm font-medium text-gray-700">
+                                Approval Percentage Required
+                              </label>
+                              <input
+                                type="number"
+                                name="approvalPercentage"
+                                id="approvalPercentage"
+                                min="1"
+                                max="100"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value={newUser.approvalPercentage}
+                                onChange={(e) => setNewUser({...newUser, approvalPercentage: parseInt(e.target.value)})}
+                              />
+                            </div>
+                            <div>
+                              <label htmlFor="specificApproverId" className="block text-sm font-medium text-gray-700">
+                                OR Specific Approver
+                              </label>
+                              <select
+                                name="specificApproverId"
+                                id="specificApproverId"
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value={newUser.specificApproverId}
+                                onChange={(e) => setNewUser({...newUser, specificApproverId: e.target.value})}
+                              >
+                                <option value="">Select Approver</option>
+                                {managers.map(manager => (
+                                  <option key={manager.id} value={manager.id}>
+                                    {manager.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <label htmlFor="minimumApprovalPercentage" className="block text-sm font-medium text-gray-700">
+                            Minimum Approval Percentage (for all types)
+                          </label>
+                          <input
+                            type="number"
+                            name="minimumApprovalPercentage"
+                            id="minimumApprovalPercentage"
+                            min="1"
+                            max="100"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            value={newUser.minimumApprovalPercentage}
+                            onChange={(e) => setNewUser({...newUser, minimumApprovalPercentage: parseInt(e.target.value)})}
+                          />
+                          <p className="mt-1 text-xs text-gray-500">
+                            Minimum percentage of approvers that must approve for expense to be approved
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex justify-end space-x-3">
                     <button
                       type="button"
@@ -537,7 +693,7 @@ export default function UsersPage() {
                       type="submit"
                       className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Create User
+                      Create User & Send Password
                     </button>
                   </div>
                 </form>

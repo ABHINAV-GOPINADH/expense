@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
@@ -23,17 +23,24 @@ interface SignupData {
   currency?: string;
 }
 
-const AuthContext = createContext<any>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Monitor Firebase Auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-    });
-    return unsubscribe;
+    // Check for existing session on mount
+    const storedUser = localStorage.getItem('user');
+    const storedCompany = localStorage.getItem('company');
+    
+    if (storedUser && storedCompany) {
+      setUser(JSON.parse(storedUser));
+      setCompany(JSON.parse(storedCompany));
+    }
+    setIsLoading(false);
   }, []);
 
   // Login method
@@ -74,4 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

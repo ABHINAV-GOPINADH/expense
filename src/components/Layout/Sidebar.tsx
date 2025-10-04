@@ -17,25 +17,16 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Expenses', href: '/expenses', icon: DocumentTextIcon },
-  { name: 'Approvals', href: '/approvals', icon: CheckCircleIcon },
   { name: 'Users', href: '/users', icon: UserGroupIcon },
-  { name: 'Settings', href: '/settings', icon: CogIcon },
-  { name: 'Reports', href: '/reports', icon: ChartBarIcon },
+  { name: 'Override Approvals', href: '/approvals', icon: CheckCircleIcon },
 ];
 
 const employeeNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'My Expenses', href: '/expenses', icon: DocumentTextIcon },
-  { name: 'Submit Expense', href: '/expenses/new', icon: ReceiptRefundIcon },
 ];
 
 const managerNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'My Expenses', href: '/expenses', icon: DocumentTextIcon },
-  { name: 'Submit Expense', href: '/expenses/new', icon: ReceiptRefundIcon },
-  { name: 'Pending Approvals', href: '/approvals', icon: CheckCircleIcon },
-  { name: 'Team Expenses', href: '/team-expenses', icon: UserGroupIcon },
+  { name: 'Approvals to Review', href: '/approvals', icon: CheckCircleIcon },
 ];
 
 export default function Sidebar() {

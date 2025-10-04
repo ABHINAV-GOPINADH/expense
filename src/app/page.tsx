@@ -9,8 +9,20 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/welcome");
-  }, [router]);
+    if (!isLoading) {
+      if (user) {
+        if (user.role === 'manager') {
+          router.push('/approvals');
+        } else if (user.role === 'employee') {
+          router.push('/expenses');
+        } else {
+          router.push('/dashboard');
+        }
+      } else {
+        router.push('/signup');
+      }
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (

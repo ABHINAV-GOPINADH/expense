@@ -10,7 +10,9 @@ import {
   XCircleIcon,
   CurrencyDollarIcon,
   ClockIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const stats = [
   {
@@ -72,6 +74,12 @@ const recentExpenses = [
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (user?.role === 'manager') router.replace('/approvals');
+    if (user?.role === 'employee') router.replace('/expenses');
+  }, [user, router]);
+  if (user?.role !== 'admin') return null;
 
   const getStatusColor = (status: string) => {
     switch (status) {

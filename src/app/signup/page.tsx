@@ -1,44 +1,32 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-
-type Country = {
-  name: {
-    common: string;
-    official?: string;
-  };
-  cca2: string;
-  currencies?: {
-    [code: string]: {
-      name: string;
-      symbol?: string;
-    };
-  };
-};
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchCountries } from '@/utils/api';
+import { Country } from '@/types';
+import { EyeIcon, EyeSlashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 
 export default function SignupPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    country: '',
+  });
+  const [countries, setCountries] = useState<Country[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [currency, setCurrency] = useState<string>("");
-
-  const { signup } = useAuth();
+  const [error, setError] = useState('');
+  
+  const { login } = useAuth();
   const router = useRouter();
 
   // Fetch countries
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       try {
         const res = await fetch(
           "https://restcountries.com/v3.1/all?fields=name,cca2,currencies"
@@ -59,7 +47,8 @@ export default function SignupPage() {
         console.error("Failed to fetch countries", err);
       }
     };
-    fetchCountries();
+
+    loadCountries();
   }, []);
 
   // Update currency when country changes
@@ -76,14 +65,22 @@ export default function SignupPage() {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setIsLoading(true);
+    setError('');
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Use Firebase signup
       await signup({
@@ -103,13 +100,41 @@ export default function SignupPage() {
     }
   };
 
+  const selectedCountry = countries.find(c => c.name.common === formData.country);
+  const availableCurrencies = selectedCountry ? Object.keys(selectedCountry.currencies) : [];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-6 sm:px-8 lg:px-10">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-extrabold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">Manage your expense reimbursements</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-indigo-100">
+            <BuildingOfficeIcon className="h-6 w-6 text-indigo-600" />
+          </div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create Your Company Account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Set up your expense management system
+          </p>
         </div>
+        
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Company Admin Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
+            </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Name */}
