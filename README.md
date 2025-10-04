@@ -20,6 +20,7 @@
 ## Video Presentation
 
 * **Link:** [[Link to video presentation]](https://drive.google.com/file/d/1D-XTpSJ3eJo3fc7U2g7L2zOCh7ynMRAD/view?usp=sharing)
+
 A comprehensive expense management system built with Next.js, featuring intelligent approval workflows, OCR receipt scanning, and multi-currency support.
 
 ## 🚀 Features
