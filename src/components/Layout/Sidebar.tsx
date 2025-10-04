@@ -25,10 +25,7 @@ const employeeNavigation = [
   { name: "Submit Expense", href: "/expenses/new", icon: ReceiptRefundIcon },
 ];
 
-const managerNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Pending Approvals", href: "/approvals", icon: CheckCircleIcon },
-];
+const managerNavigation = [{ name: "Pending Approvals", href: "/approvals", icon: CheckCircleIcon }];
 
 export default function Sidebar() {
   const pathname = usePathname();
