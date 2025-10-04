@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const emailParam = searchParams.get('email');
+    const emailParam = searchParams.get("email");
     if (emailParam) {
       setEmail(emailParam);
     }
@@ -26,13 +26,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       await login(email, password);
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (err) {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     } finally {
       setIsLoading(false);
     }
@@ -42,14 +42,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Expense
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Manage your expense reimbursements efficiently
-          </p>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to Expense</h2>
+          <p className="mt-2 text-center text-sm text-gray-600">Manage your expense reimbursements efficiently</p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -75,7 +71,7 @@ export default function LoginPage() {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
@@ -97,9 +93,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
+          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
 
           <div>
             <button
@@ -107,43 +101,28 @@ export default function LoginPage() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
           </div>
 
           <div className="text-center space-y-4">
             <div>
               <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
+                Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => router.push('/signup')}
+                  onClick={() => router.push("/signup")}
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
                   Sign up
                 </button>
               </p>
             </div>
-            
+
             <div>
-              <button
-                type="button"
-                className="text-sm text-indigo-600 hover:text-indigo-500"
-              >
+              <button type="button" className="text-sm text-indigo-600 hover:text-indigo-500">
                 Forgot your password?
               </button>
-            </div>
-
-            <div className="border-t pt-4">
-              <p className="text-sm text-gray-600 mb-2">
-                Demo credentials (all use password: "password"):
-              </p>
-              <div className="text-xs text-gray-500 space-y-1">
-                <div>👑 Admin: admin@company.com</div>
-                <div>👥 Manager: jane@company.com</div>
-                <div>👤 Employee: mike@company.com</div>
-                <div>👤 Employee: sarah@company.com</div>
-              </div>
             </div>
           </div>
         </form>
