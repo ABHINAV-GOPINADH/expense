@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Layout from '@/components/Layout/Layout';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import Layout from "@/components/Layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -11,10 +11,10 @@ import {
   UserIcon,
   UserGroupIcon,
   ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
-import { auth } from '@/firebase/config';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { collection, setDoc, doc, serverTimestamp, getDocs, deleteDoc, getFirestore } from 'firebase/firestore';
+} from "@heroicons/react/24/outline";
+import { auth } from "@/firebase/config";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { collection, setDoc, doc, serverTimestamp, getDocs, deleteDoc, getFirestore } from "firebase/firestore";
 
 const db = getFirestore();
 
@@ -27,8 +27,8 @@ const roleColors = {
 export default function UsersPage() {
   const { user } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [newUser, setNewUser] = useState({
@@ -39,7 +39,7 @@ export default function UsersPage() {
     managerId: "",
     password: "",
     sendEmailInvitation: true,
-    approvalType: 'manager',
+    approvalType: "manager",
     approvalPercentage: 60,
     specificApproverId: "",
     minimumApprovalPercentage: 50,
@@ -48,11 +48,11 @@ export default function UsersPage() {
   // Fetch users from Firestore
   const fetchUsers = async () => {
     try {
-      const snapshot = await getDocs(collection(db, 'users'));
-      const userList: any[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await getDocs(collection(db, "users"));
+      const userList: any[] = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setUsers(userList);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
 
@@ -60,7 +60,7 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
-  const managers = users.filter(u => u.role === 'manager' || u.role === 'admin');
+  const managers = users.filter((u) => u.role === "manager" || u.role === "admin");
   const generateRandomPassword = () => Math.random().toString(36).slice(-8);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -74,11 +74,7 @@ export default function UsersPage() {
       const randomPassword = generateRandomPassword();
 
       // 1️⃣ Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        newUser.email,
-        randomPassword
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, newUser.email, randomPassword);
 
       // 2️⃣ Update display name in Auth
       await updateProfile(userCredential.user, { displayName: newUser.name });
@@ -88,7 +84,7 @@ export default function UsersPage() {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
-        managerId: newUser.role === 'employee' ? newUser.managerId : null,
+        managerId: newUser.role === "employee" ? newUser.managerId : null,
         isManagerApprover: newUser.isManagerApprover,
         createdBy: user.uid,
         createdAt: serverTimestamp(),
@@ -127,31 +123,31 @@ export default function UsersPage() {
   const handleDeleteUser = async (userId: string) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await deleteDoc(doc(db, 'users', userId));
-        alert('User deleted successfully');
+        await deleteDoc(doc(db, "users", userId));
+        alert("User deleted successfully");
         fetchUsers();
       } catch (error) {
-        console.error('Error deleting user:', error);
-        alert('Error deleting user');
+        console.error("Error deleting user:", error);
+        alert("Error deleting user");
       }
     }
   };
 
-  const filteredUsers = users.filter(u => {
+  const filteredUsers = users.filter((u) => {
     const matchesSearch =
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+    const matchesRole = roleFilter === "all" || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin':
+      case "admin":
         return <ShieldCheckIcon className="h-5 w-5 text-black" />;
-      case 'manager':
+      case "manager":
         return <UserGroupIcon className="h-5 w-5 text-black" />;
-      case 'employee':
+      case "employee":
         return <UserIcon className="h-5 w-5 text-black" />;
       default:
         return <UserIcon className="h-5 w-5 text-black" />;
@@ -224,17 +220,25 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map(u => (
+                {filteredUsers.map((u) => (
                   <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-black">{u.name} ({u.email})</td>
+                    <td className="px-6 py-4 text-black">
+                      {u.name} ({u.email})
+                    </td>
                     <td className="px-6 py-4 flex items-center">
                       {getRoleIcon(u.role)}
-                      <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role]}`}>
+                      <span
+                        className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          roleColors[u.role as "admin" | "manager" | "employee"] ?? "bg-gray-100 text-gray-800"
+                        }`}
+                      >
                         {u.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-black">{u.managerId ? users.find(m => m.id === u.managerId)?.name || 'Unknown' : 'N/A'}</td>
-                    <td className="px-6 py-4 text-black">{u.isManagerApprover ? 'Yes' : 'No'}</td>
+                    <td className="px-6 py-4 text-black">
+                      {u.managerId ? users.find((m) => m.id === u.managerId)?.name || "Unknown" : "N/A"}
+                    </td>
+                    <td className="px-6 py-4 text-black">{u.isManagerApprover ? "Yes" : "No"}</td>
                     <td className="px-6 py-4">
                       <button onClick={() => handleDeleteUser(u.id)} className="text-red-600 hover:text-red-900">
                         <TrashIcon className="h-4 w-4" />
@@ -255,15 +259,31 @@ export default function UsersPage() {
               <form onSubmit={handleCreateUser} className="space-y-4">
                 <div>
                   <label className="text-black">Name</label>
-                  <input type="text" required value={newUser.name} onChange={(e)=>setNewUser({...newUser, name:e.target.value})} className="border p-2 w-full rounded text-black"/>
+                  <input
+                    type="text"
+                    required
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    className="border p-2 w-full rounded text-black"
+                  />
                 </div>
                 <div>
                   <label className="text-black">Email</label>
-                  <input type="email" required value={newUser.email} onChange={(e)=>setNewUser({...newUser, email:e.target.value})} className="border p-2 w-full rounded text-black"/>
+                  <input
+                    type="email"
+                    required
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    className="border p-2 w-full rounded text-black"
+                  />
                 </div>
                 <div>
                   <label className="text-black">Role</label>
-                  <select value={newUser.role} onChange={(e)=>setNewUser({...newUser, role:e.target.value})} className="border p-2 w-full rounded text-black">
+                  <select
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                    className="border p-2 w-full rounded text-black"
+                  >
                     <option value="employee">Employee</option>
                     <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
@@ -271,17 +291,30 @@ export default function UsersPage() {
                 </div>
 
                 {/* Employee-specific fields */}
-                {newUser.role==='employee' && (
+                {newUser.role === "employee" && (
                   <>
                     <div>
                       <label className="text-black">Manager</label>
-                      <select value={newUser.managerId} onChange={(e)=>setNewUser({...newUser, managerId:e.target.value})} className="border p-2 w-full rounded text-black">
+                      <select
+                        value={newUser.managerId}
+                        onChange={(e) => setNewUser({ ...newUser, managerId: e.target.value })}
+                        className="border p-2 w-full rounded text-black"
+                      >
                         <option value="">Select Manager</option>
-                        {managers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        {managers.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div className="flex items-center">
-                      <input type="checkbox" checked={newUser.isManagerApprover} onChange={(e)=>setNewUser({...newUser, isManagerApprover:e.target.checked})} className="h-4 w-4 text-indigo-600 border-gray-300 rounded"/>
+                      <input
+                        type="checkbox"
+                        checked={newUser.isManagerApprover}
+                        onChange={(e) => setNewUser({ ...newUser, isManagerApprover: e.target.checked })}
+                        className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                      />
                       <label className="ml-2 text-black">Is manager an approver?</label>
                     </div>
 
@@ -290,50 +323,108 @@ export default function UsersPage() {
                       <label className="text-black font-medium">Approval Type</label>
                       <div className="space-y-1">
                         <label className="flex items-center">
-                          <input type="radio" name="approvalType" value="manager" checked={newUser.approvalType==='manager'} onChange={e=>setNewUser({...newUser, approvalType:e.target.value})} className="h-4 w-4 text-indigo-600 border-gray-300"/>
+                          <input
+                            type="radio"
+                            name="approvalType"
+                            value="manager"
+                            checked={newUser.approvalType === "manager"}
+                            onChange={(e) => setNewUser({ ...newUser, approvalType: e.target.value })}
+                            className="h-4 w-4 text-indigo-600 border-gray-300"
+                          />
                           <span className="ml-2 text-black">Manager Approval</span>
                         </label>
                         <label className="flex items-center">
-                          <input type="radio" name="approvalType" value="percentage" checked={newUser.approvalType==='percentage'} onChange={e=>setNewUser({...newUser, approvalType:e.target.value})} className="h-4 w-4 text-indigo-600 border-gray-300"/>
+                          <input
+                            type="radio"
+                            name="approvalType"
+                            value="percentage"
+                            checked={newUser.approvalType === "percentage"}
+                            onChange={(e) => setNewUser({ ...newUser, approvalType: e.target.value })}
+                            className="h-4 w-4 text-indigo-600 border-gray-300"
+                          />
                           <span className="ml-2 text-black">Percentage Approval</span>
                         </label>
                         <label className="flex items-center">
-                          <input type="radio" name="approvalType" value="specific" checked={newUser.approvalType==='specific'} onChange={e=>setNewUser({...newUser, approvalType:e.target.value})} className="h-4 w-4 text-indigo-600 border-gray-300"/>
+                          <input
+                            type="radio"
+                            name="approvalType"
+                            value="specific"
+                            checked={newUser.approvalType === "specific"}
+                            onChange={(e) => setNewUser({ ...newUser, approvalType: e.target.value })}
+                            className="h-4 w-4 text-indigo-600 border-gray-300"
+                          />
                           <span className="ml-2 text-black">Specific Approver</span>
                         </label>
                         <label className="flex items-center">
-                          <input type="radio" name="approvalType" value="hybrid" checked={newUser.approvalType==='hybrid'} onChange={e=>setNewUser({...newUser, approvalType:e.target.value})} className="h-4 w-4 text-indigo-600 border-gray-300"/>
+                          <input
+                            type="radio"
+                            name="approvalType"
+                            value="hybrid"
+                            checked={newUser.approvalType === "hybrid"}
+                            onChange={(e) => setNewUser({ ...newUser, approvalType: e.target.value })}
+                            className="h-4 w-4 text-indigo-600 border-gray-300"
+                          />
                           <span className="ml-2 text-black">Hybrid</span>
                         </label>
                       </div>
 
                       {/* Conditional Inputs */}
-                      {newUser.approvalType==='percentage' && (
+                      {newUser.approvalType === "percentage" && (
                         <div>
                           <label className="text-black">Approval Percentage</label>
-                          <input type="number" min={1} max={100} value={newUser.approvalPercentage} onChange={e=>setNewUser({...newUser, approvalPercentage:parseInt(e.target.value)})} className="border p-2 w-full rounded text-black"/>
+                          <input
+                            type="number"
+                            min={1}
+                            max={100}
+                            value={newUser.approvalPercentage}
+                            onChange={(e) => setNewUser({ ...newUser, approvalPercentage: parseInt(e.target.value) })}
+                            className="border p-2 w-full rounded text-black"
+                          />
                         </div>
                       )}
-                      {newUser.approvalType==='specific' && (
+                      {newUser.approvalType === "specific" && (
                         <div>
                           <label className="text-black">Specific Approver</label>
-                          <select value={newUser.specificApproverId} onChange={e=>setNewUser({...newUser, specificApproverId:e.target.value})} className="border p-2 w-full rounded text-black">
+                          <select
+                            value={newUser.specificApproverId}
+                            onChange={(e) => setNewUser({ ...newUser, specificApproverId: e.target.value })}
+                            className="border p-2 w-full rounded text-black"
+                          >
                             <option value="">Select Approver</option>
-                            {managers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                            {managers.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       )}
-                      {newUser.approvalType==='hybrid' && (
+                      {newUser.approvalType === "hybrid" && (
                         <>
                           <div>
                             <label className="text-black">Approval Percentage</label>
-                            <input type="number" min={1} max={100} value={newUser.approvalPercentage} onChange={e=>setNewUser({...newUser, approvalPercentage:parseInt(e.target.value)})} className="border p-2 w-full rounded text-black"/>
+                            <input
+                              type="number"
+                              min={1}
+                              max={100}
+                              value={newUser.approvalPercentage}
+                              onChange={(e) => setNewUser({ ...newUser, approvalPercentage: parseInt(e.target.value) })}
+                              className="border p-2 w-full rounded text-black"
+                            />
                           </div>
                           <div>
                             <label className="text-black">OR Specific Approver</label>
-                            <select value={newUser.specificApproverId} onChange={e=>setNewUser({...newUser, specificApproverId:e.target.value})} className="border p-2 w-full rounded text-black">
+                            <select
+                              value={newUser.specificApproverId}
+                              onChange={(e) => setNewUser({ ...newUser, specificApproverId: e.target.value })}
+                              className="border p-2 w-full rounded text-black"
+                            >
                               <option value="">Select Approver</option>
-                              {managers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                              {managers.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.name}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </>
@@ -342,7 +433,16 @@ export default function UsersPage() {
                       {/* Minimum Approval */}
                       <div>
                         <label className="text-black">Minimum Approval Percentage</label>
-                        <input type="number" min={1} max={100} value={newUser.minimumApprovalPercentage} onChange={e=>setNewUser({...newUser, minimumApprovalPercentage:parseInt(e.target.value)})} className="border p-2 w-full rounded text-black"/>
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={newUser.minimumApprovalPercentage}
+                          onChange={(e) =>
+                            setNewUser({ ...newUser, minimumApprovalPercentage: parseInt(e.target.value) })
+                          }
+                          className="border p-2 w-full rounded text-black"
+                        />
                       </div>
                     </div>
                   </>
@@ -350,14 +450,21 @@ export default function UsersPage() {
 
                 {/* Modal Buttons */}
                 <div className="flex justify-end space-x-2">
-                  <button type="button" onClick={()=>setIsCreateModalOpen(false)} className="px-4 py-2 border rounded text-black">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded">Create</button>
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="px-4 py-2 border rounded text-black"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded">
+                    Create
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         )}
-
       </div>
     </Layout>
   );
