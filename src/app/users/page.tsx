@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
+=======
+import React, { useState } from "react";
+import Layout from "@/components/Layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -11,40 +17,109 @@ import {
   UserIcon,
   UserGroupIcon,
   ShieldCheckIcon,
+<<<<<<< HEAD
 } from '@heroicons/react/24/outline';
 import { auth } from '@/firebase/config';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { collection, setDoc, doc, serverTimestamp, getDocs, deleteDoc, getFirestore } from 'firebase/firestore';
 
 const db = getFirestore();
+=======
+} from "@heroicons/react/24/outline";
+
+// Mock data for users
+const mockUsers = [
+  {
+    id: "1",
+    name: "John Admin",
+    email: "admin@company.com",
+    role: "admin",
+    isManagerApprover: true,
+    managerId: null,
+    createdAt: "2024-01-01",
+    lastLogin: "2024-01-15",
+  },
+  {
+    id: "2",
+    name: "Jane Manager",
+    email: "jane@company.com",
+    role: "manager",
+    isManagerApprover: true,
+    managerId: "1",
+    createdAt: "2024-01-02",
+    lastLogin: "2024-01-14",
+  },
+  {
+    id: "3",
+    name: "Mike Employee",
+    email: "mike@company.com",
+    role: "employee",
+    isManagerApprover: false,
+    managerId: "2",
+    createdAt: "2024-01-03",
+    lastLogin: "2024-01-13",
+  },
+  {
+    id: "4",
+    name: "Sarah Employee",
+    email: "sarah@company.com",
+    role: "employee",
+    isManagerApprover: false,
+    managerId: "2",
+    createdAt: "2024-01-04",
+    lastLogin: "2024-01-12",
+  },
+  {
+    id: "5",
+    name: "Bob Manager",
+    email: "bob@company.com",
+    role: "manager",
+    isManagerApprover: true,
+    managerId: "1",
+    createdAt: "2024-01-05",
+    lastLogin: "2024-01-11",
+  },
+];
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
 
 const roleColors = {
-  admin: 'bg-purple-100 text-purple-800',
-  manager: 'bg-blue-100 text-blue-800',
-  employee: 'bg-green-100 text-green-800',
+  admin: "bg-purple-100 text-purple-800",
+  manager: "bg-blue-100 text-blue-800",
+  employee: "bg-green-100 text-green-800",
 };
 
 export default function UsersPage() {
   const { user } = useAuth();
+<<<<<<< HEAD
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+=======
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    role: 'employee',
+    name: "",
+    email: "",
+    role: "employee",
     isManagerApprover: false,
-    managerId: '',
-    password: '',
+    managerId: "",
+    password: "",
     sendEmailInvitation: true,
+<<<<<<< HEAD
     approvalType: 'manager',
+=======
+    // Approval rules
+    approvalType: "manager", // 'manager', 'percentage', 'specific', 'hybrid'
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
     approvalPercentage: 60,
-    specificApproverId: '',
+    specificApproverId: "",
     minimumApprovalPercentage: 50,
   });
 
+<<<<<<< HEAD
   // Fetch users from Firestore
   const fetchUsers = async () => {
     try {
@@ -59,6 +134,18 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
+=======
+  const filteredUsers = mockUsers.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
+  });
+
+  const managers = mockUsers.filter((u) => u.role === "manager" || u.role === "admin");
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
 
   const managers = users.filter(u => u.role === 'manager' || u.role === 'admin');
   const generateRandomPassword = () => Math.random().toString(36).slice(-8);
@@ -72,6 +159,7 @@ export default function UsersPage() {
 
     try {
       const randomPassword = generateRandomPassword();
+<<<<<<< HEAD
 
       // 1️⃣ Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
@@ -101,20 +189,39 @@ export default function UsersPage() {
       alert(`User created successfully! Password: ${randomPassword}`);
 
       // Reset form & close modal
+=======
+      // Simulate sending password (show in alert or toast)
+      alert(`User created! Password sent: ${randomPassword}`);
+
+      // Mock API call - in real app, this would submit to your backend
+      console.log("Creating user:", newUser);
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Reset form and close modal
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
       setNewUser({
-        name: '',
-        email: '',
-        role: 'employee',
+        name: "",
+        email: "",
+        role: "employee",
         isManagerApprover: false,
-        managerId: '',
-        password: '',
+        managerId: "",
+        password: "",
         sendEmailInvitation: true,
-        approvalType: 'manager',
+        approvalType: "manager",
         approvalPercentage: 60,
-        specificApproverId: '',
+        specificApproverId: "",
         minimumApprovalPercentage: 50,
       });
       setIsCreateModalOpen(false);
+<<<<<<< HEAD
+=======
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
 
       // Refresh user list
       fetchUsers();
@@ -125,14 +232,24 @@ export default function UsersPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm("Are you sure you want to delete this user?")) {
       try {
+<<<<<<< HEAD
         await deleteDoc(doc(db, 'users', userId));
         alert('User deleted successfully');
         fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
         alert('Error deleting user');
+=======
+        // Mock API call - in real app, this would submit to your backend
+        console.log("Deleting user:", userId);
+
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error("Error deleting user:", error);
+>>>>>>> 058ebcc46b7efd9a9655f0ce1dfdae57ce7c6872
       }
     }
   };
