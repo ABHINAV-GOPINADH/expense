@@ -21,7 +21,6 @@ const navigation = [
 ];
 
 const employeeNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "My Expenses", href: "/expenses", icon: DocumentTextIcon },
   { name: "Submit Expense", href: "/expenses/new", icon: ReceiptRefundIcon },
 ];
