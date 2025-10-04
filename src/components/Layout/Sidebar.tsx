@@ -16,11 +16,8 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Expenses", href: "/expenses", icon: DocumentTextIcon },
   { name: "Approvals", href: "/approvals", icon: CheckCircleIcon },
   { name: "Users", href: "/users", icon: UserGroupIcon },
-  { name: "Settings", href: "/settings", icon: CogIcon },
-  { name: "Reports", href: "/reports", icon: ChartBarIcon },
 ];
 
 const employeeNavigation = [
