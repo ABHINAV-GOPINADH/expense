@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { format } from "date-fns";
 import Layout from "@/components/Layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +12,6 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 const stats = [
   {
@@ -73,13 +72,15 @@ const recentExpenses = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { userProfile } = useAuth(); // <-- use userProfile here
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.role === "manager") router.replace("/approvals");
-    if (user?.role === "employee") router.replace("/expenses");
-  }, [user, router]);
+    if (!userProfile) return; // wait for userProfile to load
+
+    if (userProfile.role === "manager") router.replace("/approvals");
+    if (userProfile.role === "employee") router.replace("/expenses");
+  }, [userProfile, router]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -98,9 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = "/login"; // Redirect to login page
   };
 
-  // Optionally, don't render children until loading done
   if (isLoading) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return <AuthContext.Provider value={{ user, userProfile, login, signup, logout }}>{children}</AuthContext.Provider>;
