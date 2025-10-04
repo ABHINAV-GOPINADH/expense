@@ -28,7 +28,6 @@ const employeeNavigation = [
 const managerNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Pending Approvals", href: "/approvals", icon: CheckCircleIcon },
-  { name: "Team Expenses", href: "/team-expenses", icon: UserGroupIcon },
 ];
 
 export default function Sidebar() {
