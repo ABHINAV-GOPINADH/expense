@@ -11,6 +11,7 @@ import {
   User,
 } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { sign } from "crypto";
 
 const db = getFirestore(auth.app);
 
@@ -61,7 +62,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Logout method
-  const logout = () => signOut(auth);
+  const logout = async () => {
+    await signOut(auth);
+    window.location.href = "/login"; // Redirect to login page
+  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, signup }}>
