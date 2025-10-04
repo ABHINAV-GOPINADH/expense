@@ -10,9 +10,9 @@ import {
   XCircleIcon,
   CurrencyDollarIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+} from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const stats = [
   {
@@ -75,11 +75,11 @@ const recentExpenses = [
 export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
+
   useEffect(() => {
-    if (user?.role === 'manager') router.replace('/approvals');
-    if (user?.role === 'employee') router.replace('/expenses');
+    if (user?.role === "manager") router.replace("/approvals");
+    if (user?.role === "employee") router.replace("/expenses");
   }, [user, router]);
-  if (user?.role !== 'admin') return null;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -163,59 +163,6 @@ export default function DashboardPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <button className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-300 hover:border-gray-400">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-indigo-50 text-indigo-700 ring-4 ring-white">
-                    <DocumentTextIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium">
-                    <span className="absolute inset-0" />
-                    Submit New Expense
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">Create a new expense claim with receipt upload</p>
-                </div>
-              </button>
-
-              <button className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-300 hover:border-gray-400">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-green-50 text-green-700 ring-4 ring-white">
-                    <CheckCircleIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium">
-                    <span className="absolute inset-0" />
-                    Review Approvals
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">Approve or reject pending expense claims</p>
-                </div>
-              </button>
-
-              <button className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500 rounded-lg border border-gray-300 hover:border-gray-400">
-                <div>
-                  <span className="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
-                    <CurrencyDollarIcon className="h-6 w-6" />
-                  </span>
-                </div>
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium">
-                    <span className="absolute inset-0" />
-                    View Reports
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">Analyze expense trends and patterns</p>
-                </div>
-              </button>
             </div>
           </div>
         </div>
